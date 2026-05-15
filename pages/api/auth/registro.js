@@ -1,6 +1,6 @@
 import { conectorSQL } from '../../../lib/db';
 import sql from 'mssql';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -9,6 +9,14 @@ export default async function handler(req, res) {
 
       if (!nombre || !correo || !password) {
         return res.status(400).json({ error: 'Todos los campos son obligatorios.' });
+      }
+
+      // Validación de fuerza de contraseña avanzada
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordRegex.test(password)) {
+        return res.status(400).json({ 
+          error: 'La contraseña debe tener al menos 8 caracteres, incluir una mayúscula, una minúscula, un número y un carácter especial.' 
+        });
       }
 
       const pool = await conectorSQL();

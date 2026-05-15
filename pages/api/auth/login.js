@@ -1,7 +1,7 @@
 import { conectorSQL } from '../../../lib/db';
 import sql from 'mssql';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -26,8 +26,7 @@ export default async function handler(req, res) {
         return res.status(401).json({ error: 'Credenciales inválidas.' });
       }
 
-      // Comparamos la contraseña enviada con la guardada en BD
-      
+      // Comparamos la contraseña enviada con la guardada en la base de datos
       const passwordValida = await bcrypt.compare(password, user.password);
 
       if (!passwordValida) {
@@ -41,7 +40,7 @@ export default async function handler(req, res) {
         { expiresIn: '24h' } 
       );
 
-      // Respondemos con el Token y la información para pintar el "Bienvenido, [Nombre]"
+      // Respondemos con el Token y la información
       return res.status(200).json({
         mensaje: `Bienvenido, ${user.nombre}`,
         token,
