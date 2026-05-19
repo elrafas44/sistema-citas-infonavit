@@ -4,12 +4,24 @@ import sql from 'mssql';
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'Método no permitido' });
 
+  const origin = req.headers.origin || req.headers.referer;
+  const host = req.headers.host;
+
+  if (!origin) {
+    return res.status(403).json({ error: 'Acceso denegado: No se detectó el origen de la petición.' });
+  }
+
+  const dominioOrigen = origin.replace(/^https?:\/\//, '').split('/')[0];
+
+  if (dominioOrigen !== host) {
+    return res.status(403).json({ error: 'Ataque CSRF Detectado: Origen no autorizado.' });
+  }
+
   const { motivo, fecha, hora, usuario_id } = req.body;
 
   try {
     const pool = await conectorSQL();
 
-    // 1. VALIDACIÓN: Revisar si ya tiene una cita activa
     const checkCita = await pool.request()
       .input('u_id', sql.Int, usuario_id)
       .query(`
@@ -25,7 +37,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // 2. Si no tiene citas, procedemos con el INSERT
     await pool.request()
       .input('motivo', sql.VarChar, motivo)
       .input('fecha', sql.Date, fecha)

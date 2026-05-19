@@ -5,12 +5,19 @@ import { encriptarDato, generarHashIntegridad } from '../../../lib/crypto';
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-   
+    // 🛡️ ESCUDO ANTI-CSRF (Versión de Iván respetada)
     const origin = req.headers.origin || req.headers.referer;
     const host = req.headers.host;
-    if (!origin) return res.status(403).json({ error: 'Acceso denegado' });
+
+    if (!origin) {
+      return res.status(403).json({ error: 'Acceso denegado: No se detectó el origen de la petición.' });
+    }
+
     const dominioOrigen = origin.replace(/^https?:\/\//, '').split('/')[0];
-    if (dominioOrigen !== host) return res.status(403).json({ error: 'Ataque CSRF Detectado' });
+
+    if (dominioOrigen !== host) {
+      return res.status(403).json({ error: 'Ataque CSRF Detectado: Origen no autorizado.' });
+    }
 
     try {
       // Agregamos "telefono" a la destructuración
@@ -35,11 +42,11 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'El correo ya está registrado.' });
       }
 
-      
+      // 🔐 Encriptamos la contraseña (Hashing asimétrico)
       const saltRounds = 10;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-      
+      // 🔐 NUEVO: Criptografía para el teléfono (Tu versión respetada)
       let telEncriptado = null;
       let telHash = null;
       
