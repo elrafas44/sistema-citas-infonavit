@@ -23,16 +23,12 @@ export default function Login() {
       const data = await res.json();
 
       if (res.ok) {
-        // 1. Guardamos el token de seguridad
-        localStorage.setItem('token', data.token);
         
-        // 2. Guardamos TODOS los datos del usuario para usarlos en la app
         localStorage.setItem('usuarioNombre', data.usuario.nombre);
-        localStorage.setItem('usuarioId', data.usuario.id); // Clave para agendar citas
-        localStorage.setItem('usuarioRol', data.usuario.rol); // Clave para esconder/mostrar el Panel
-        localStorage.setItem('usuarioPuntos', data.usuario.puntos); // Clave para mostrar sus puntos
+        localStorage.setItem('usuarioId', data.usuario.id); 
+        localStorage.setItem('usuarioRol', data.usuario.rol); 
+        localStorage.setItem('usuarioPuntos', data.usuario.puntos); 
         
-        // 3. Redirigimos a la pantalla principal
         router.push('/inicio');
       } else {
         setError(data.error || 'Error al iniciar sesión');

@@ -9,9 +9,8 @@ export default function Layout({ children }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Si no hay token, lo mandamos al login
-    const token = localStorage.getItem('token');
-    if (!token) {
+    const usuarioId = localStorage.getItem('usuarioId');
+    if (!usuarioId) {
       router.push('/');
       return;
     }
@@ -25,12 +24,11 @@ export default function Layout({ children }) {
     router.push('/');
   };
 
-  // Función para saber si un enlace es la página actual
   const isActivo = (ruta) => router.pathname === ruta;
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Nuestro Sidebar */}
+      {}
       <aside className="w-64 bg-[#8A1538] text-white flex flex-col justify-between shadow-xl z-10 sticky top-0 h-screen">
         <div className="p-6">
           <h2 className="text-3xl font-bold mb-2 text-center">Infonavit</h2>
@@ -95,7 +93,7 @@ export default function Layout({ children }) {
         {children}
       </main>
 
-      {/* Inyectamos el Bot Flotante solo si es ciudadano */}
+      {}
       {rol === 'ciudadano' && <Chatbot />}
     </div>
   );
