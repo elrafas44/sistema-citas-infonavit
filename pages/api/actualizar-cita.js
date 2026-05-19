@@ -6,6 +6,19 @@ export default async function handler(req, res) {
     return res.status(405).json({ mensaje: 'Método no permitido' });
   }
 
+  const origin = req.headers.origin || req.headers.referer;
+  const host = req.headers.host;
+
+  if (!origin) {
+    return res.status(403).json({ mensaje: 'Acceso denegado: No se detectó el origen de la petición.' });
+  }
+
+  const dominioOrigen = origin.replace(/^https?:\/\//, '').split('/')[0];
+
+  if (dominioOrigen !== host) {
+    return res.status(403).json({ mensaje: 'Ataque CSRF Detectado: Origen no autorizado.' });
+  }
+
   try {
     const { id, estado } = req.body;
 
@@ -14,7 +27,6 @@ export default async function handler(req, res) {
     }
 
     const pool = await conectorSQL();
-    
     
     const result = await pool.request()
       .input('id', sql.Int, id)
@@ -28,7 +40,6 @@ export default async function handler(req, res) {
     }
 
   } catch (error) {
-    
     console.error("Error detallado:", error);
     return res.status(500).json({ 
       mensaje: 'Error en SQL: ' + error.message 
