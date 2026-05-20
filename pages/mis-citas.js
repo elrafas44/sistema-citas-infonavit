@@ -60,6 +60,26 @@ export default function MisCitas() {
     const doc = new jsPDF();
     const nombreUsuario = localStorage.getItem('usuarioNombre') || 'Ciudadano';
 
+    let selloDigital = 'FIRMA_NO_DISPONIBLE';
+    try {
+      const resSello = await fetch('/api/citas/firmar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: cita.id,
+          nombre: nombreUsuario,
+          fecha: cita.fecha,
+          hora: cita.hora
+        })
+      });
+      if (resSello.ok) {
+        const data = await resSello.json();
+        selloDigital = data.sello;
+      }
+    } catch (err) {
+      console.error('Error obteniendo la firma', err);
+    }
+
     doc.setFontSize(22);
     doc.setTextColor(138, 21, 56);
     doc.text('Comprobante de Cita - Infonavit', 105, 20, { align: 'center' });
@@ -89,6 +109,12 @@ export default function MisCitas() {
     doc.setTextColor(100, 100, 100);
     doc.text('Presenta este código QR el día de tu cita.', 105, 170, { align: 'center' });
 
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Sello de Autenticidad (HMAC-SHA256):`, 20, 275);
+    doc.setFont('courier', 'bold');
+    doc.text(selloDigital, 20, 280);
+
     doc.save(`Cita_${cita.id}.pdf`);
   };
 
@@ -102,7 +128,6 @@ export default function MisCitas() {
         {cargando ? (
           <p className="text-gray-500 animate-pulse">Consultando base de datos...</p>
         ) : (
-          /* Solo mostramos las que NO están rechazadas ni canceladas */
           citas.filter(c => obtenerEstado(c.estado) !== 'rechazada' && obtenerEstado(c.estado) !== 'cancelada').length === 0 ? (
             <div className="bg-white border-2 border-dashed border-gray-200 rounded-2xl p-12 text-center">
               <div className="text-6xl mb-4">📅</div>
