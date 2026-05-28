@@ -8,6 +8,18 @@ export default function Layout({ children }) {
   const [nombre, setNombre] = useState('');
   const router = useRouter();
 
+  // Advertencia Anti Self-XSS para la consola
+  useEffect(() => {
+    console.log(
+      "%c¡DETENTE!", 
+      "color: red; font-size: 50px; font-weight: bold; text-shadow: 2px 2px 0 black;"
+    );
+    console.log(
+      "%cEsta función del navegador está pensada para desarrolladores. Si alguien te indicó que copiaras y pegaras algo aquí para habilitar una función o 'hackear' tus puntos, se trata de un fraude (ataque Self-XSS) que le dará acceso a tu cuenta del Infonavit.", 
+      "font-size: 16px; font-weight: bold;"
+    );
+  }, []);
+
   useEffect(() => {
     const usuarioId = localStorage.getItem('usuarioId');
     if (!usuarioId) {
